@@ -1,0 +1,11 @@
+[project]
+name = "so101"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "hebi-py>=2.11.0",
+    "lerobot[all]>=0.4.3",
+    "requests>=2.32.5",
+]
