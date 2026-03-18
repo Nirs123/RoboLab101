@@ -1,0 +1,51 @@
+uv run lerobot-find-port
+
+chmod 666 /dev/ttyACM0
+chmod 666 /dev/ttyACM1
+
+uv run lerobot-find-cameras
+
+uv run lerobot-teleoperate \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM1 \
+    --robot.id=Follower_01_DarkGreen \
+    --teleop.type=so101_leader \
+    --teleop.port=/dev/ttyACM0 \
+    --teleop.id=Leader_01_Purple \
+    --display_data=true \
+    --robot.cameras="{ \
+        wrist: {type: opencv, index_or_path: /dev/video2, width: 640, height: 480, fps: 30}, \
+        overhead: {type: opencv, index_or_path: /dev/video4, width: 640, height: 480, fps: 30}}"
+
+uv run lerobot-record \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM1 \
+    --robot.id=Follower_01_DarkGreen \
+    --teleop.type=so101_leader \
+    --teleop.port=/dev/ttyACM0 \
+    --teleop.id=Leader_01_Purple \
+    --robot.cameras="{ \
+        wrist: {type: opencv, index_or_path: /dev/video2, width: 640, height: 480, fps: 30}, \
+        overhead: {type: opencv, index_or_path: /dev/video4, width: 640, height: 480, fps: 30}}" \
+    --dataset.num_episodes=3 \
+    --dataset.repo_id=nirs123/record-test-streaming-3 \
+    --dataset.single_task="Grab the blue highlighter" \
+    --dataset.streaming_encoding=true \
+    --dataset.encoder_threads=1
+
+
+uv run lerobot-train \
+    --dataset.repo_id=nirs123/blue-highlightner \
+    --policy.type=act \
+    --output_dir=outputs/train/act_blue_highlighter \
+    --job_name=act_blue_highlighter \
+    --policy.device=cuda \
+    --wandb.enable=false \
+    --policy.repo_id=nirs123/policy_act_blue_highlighter
+
+
+
+Follower = /dev/ttyACM1
+Leader = /dev/ttyACM0
+Camera wrist = /dev/video2
+Camera overhead = /dev/video4
