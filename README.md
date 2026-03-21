@@ -48,8 +48,8 @@ On peut alors définir ces quatres variables qui seront utilisées dans les comm
 ```
 LEADER_PORT="/dev/ttyACM0"
 FOLLOWER_PORT="/dev/ttyACM1"
-WRIST_PATH="/dev/video2"
-OVERHEAD_PATH="/dev/video4"
+WRIST_PATH="/dev/video0"
+OVERHEAD_PATH="/dev/video2"
 ```
 
 ### Gestion compte Hugging Face
@@ -126,7 +126,7 @@ Explication des paramètres :
 
 ## Entraînement modèle
 
-TODO quelque chose comme ceci :
+A executer, quelque chose comme ceci :
 
 ```
 uv run lerobot-train \
@@ -137,7 +137,11 @@ uv run lerobot-train \
     --policy.device=cuda \
     --wandb.enable=false \
     --policy.repo_id=nirs123/policy_act_blue_highlighter
+    # --steps=10000 par défaut 100000
+    # --policy.push_to_hub
 ```
+
+On peut lancer l'entrainement sur un Google Colab avec [ces notebooks Python](https://huggingface.co/docs/lerobot/notebooks)
 
 Avec les paramètres :
 - `--dataset.repo_id` : ID du dataset sur Hugging Face sur lequel on veut entraîner le modèle
@@ -152,48 +156,37 @@ Voir [documentation Hugging Face LeRobot sur la partie entraînement](https://hu
 
 ## Evaluation de modèle
 
-TODO
+Quelque chose comme ça :
+
+```
+lerobot-record  \
+    --robot.type=so101_follower \
+    --robot.port=${FOLLOWER_PORT} \
+    --robot.cameras="{ \
+        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
+        overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
+    --robot.id=Follower_01_DarkGreen \
+    --display_data=false \
+    --dataset.repo_id=nirs123/eval_act_blue_highlighter \
+    --dataset.single_task="Grab the blue highlighter" \
+    --dataset.streaming_encoding=true \
+    --dataset.encoder_threads=1 \
+    # <- Teleop optional if you want to teleoperate in between episodes \
+    # --teleop.type=so101_leader \
+    # --teleop.port=${LEADER_PORT} \
+    # --teleop.id=Leader_01_Purple \
+    --policy.path=nirs123/policy_act_blue_highlighter
+```
 
 ## Inférence de modèle
 
 Voir [documentation Hugging Face LeRobot sur la partie inférence](https://huggingface.co/docs/lerobot/async)
 
-TODO
-
 ```
-python -m lerobot.async_inference.policy_server \
+uv run -m lerobot.async_inference.policy_server \
      --host=127.0.0.1 \
      --port=8080
 ```
-
-### Modèle de base
-
-TODO :
-
-```
-python -m lerobot.async_inference.robot_client \
-    --server_address=127.0.0.1:8080 \
-    --robot.type=so101_follower \
-    --robot.port=${FOLLOWER_PORT} \
-    --robot.id=Follower_01_DarkGreen \
-    --robot.cameras="{ \
-        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
-        overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
-    --task="Grab the blue highlighter" \
-    --policy_type=smolvla \
-    --pretrained_name_or_path=lerobot/smolvla_base \
-    --policy_device=cuda \
-    --actions_per_chunk=50 \
-    --chunk_size_threshold=0.5
-```
-
-Paramètres a voir :
-- `--actions_per_chunk` : How many actions to predict at once (10-50)
-- `--chunk_size_threshold` : When to request new actions (0.1-0.7)
-
-### Modèle finetuné
-
-TODO :
 
 ```
 python -m lerobot.async_inference.robot_client \
