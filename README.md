@@ -43,13 +43,14 @@ uv run lerobot-find-cameras
 
 Cela permet de voir quel caméra (wrist ou overhead) est connecté à quel chemin (ex : /dev/video2 pour wrist et /dev/video4 pour overhead) grâce aux photos prises et sauvegardées dans le dossier `outputs/captured_images/`.
 
-On peut alors définir ces quatres variables qui seront utilisées dans les commandes qui suivent :
+On peut alors définir ces cinq variables qui seront utilisées dans les commandes qui suivent :
 
 ```
 LEADER_PORT="/dev/ttyACM0"
 FOLLOWER_PORT="/dev/ttyACM1"
-WRIST_PATH="/dev/video0"
+WRIST_PATH="/dev/video4"
 OVERHEAD_PATH="/dev/video2"
+HF_USER="nirs123"
 ```
 
 ### Gestion compte Hugging Face
@@ -110,8 +111,8 @@ uv run lerobot-record \
     --robot.cameras="{ \
         wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
-    --dataset.num_episodes=3 \
-    --dataset.repo_id=${HF_USER}/record-test-streaming-3 \
+    --dataset.num_episodes=80 \
+    --dataset.repo_id=${HF_USER}/grab_blue_highlighter_2pos4or10ep \
     --dataset.single_task="Grab the blue highlighter" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=1 
@@ -126,19 +127,19 @@ Explication des paramètres :
 
 ## Entraînement modèle
 
-A executer, quelque chose comme ceci :
+Commande à executer :
 
 ```
 uv run lerobot-train \
-    --dataset.repo_id=nirs123/blue-highlightner \
+    --dataset.repo_id=${HF_USER}/blue-highlightner \
     --policy.type=act \
-    --output_dir=outputs/train/act_blue_highlighter \
-    --job_name=act_blue_highlighter \
+    --output_dir=outputs/train/act_blue_highlighter_10000 \
+    --job_name=act_blue_highlighter_10000_training_job \
     --policy.device=cuda \
     --wandb.enable=false \
-    --policy.repo_id=nirs123/policy_act_blue_highlighter
-    # --steps=10000 par défaut 100000
-    # --policy.push_to_hub
+    --policy.repo_id=${HF_USER}/act_blue_highlighter_10000_policy \
+    --steps=10000 \
+    --policy.push_to_hub=true
 ```
 
 On peut lancer l'entrainement sur un Google Colab avec [ces notebooks Python](https://huggingface.co/docs/lerobot/notebooks)
@@ -156,10 +157,10 @@ Voir [documentation Hugging Face LeRobot sur la partie entraînement](https://hu
 
 ## Evaluation de modèle
 
-Quelque chose comme ça :
+Commande à executer :
 
 ```
-lerobot-record  \
+uv run lerobot-record  \
     --robot.type=so101_follower \
     --robot.port=${FOLLOWER_PORT} \
     --robot.cameras="{ \
@@ -167,15 +168,15 @@ lerobot-record  \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
     --robot.id=Follower_01_DarkGreen \
     --display_data=false \
-    --dataset.repo_id=nirs123/eval_act_blue_highlighter \
+    --dataset.repo_id=${HF_USER}/eval_act_blue_highlighter \
     --dataset.single_task="Grab the blue highlighter" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=1 \
+    --policy.path=${HF_USER}/act_blue_highlighter_50000_policy
     # <- Teleop optional if you want to teleoperate in between episodes \
     # --teleop.type=so101_leader \
     # --teleop.port=${LEADER_PORT} \
     # --teleop.id=Leader_01_Purple \
-    --policy.path=nirs123/policy_act_blue_highlighter
 ```
 
 ## Inférence de modèle
@@ -189,7 +190,7 @@ uv run -m lerobot.async_inference.policy_server \
 ```
 
 ```
-python -m lerobot.async_inference.robot_client \
+uv run -m lerobot.async_inference.robot_client \
     --server_address=127.0.0.1:8080 \
     --robot.type=so101_follower \
     --robot.port=${FOLLOWER_PORT} \
@@ -198,9 +199,9 @@ python -m lerobot.async_inference.robot_client \
         wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
     --task="Grab the blue highlighter" \
-    --policy_type=smolvla \
-    --pretrained_name_or_path=nirs123/policy_act_blue_highlighter \
-    --policy_device=cuda \
+    --policy_type=act \
+    --pretrained_name_or_path=${HF_USER}/act_blue_highlighter_100000_policy \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.5
+    # --policy_device=cuda \
 ``` 
