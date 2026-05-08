@@ -1,6 +1,7 @@
 from lerobot.teleoperators.so_leader import SO101Leader, SO101LeaderConfig
 from lerobot.robots.so_follower import SO101Follower, SO101FollowerConfig
 from lerobot.cameras.opencv.configuration_opencv import OpenCVCameraConfig
+from lerobot.cameras.configs import Cv2Rotation
 
 LEADER_PORT="/dev/ttyACM0"
 FOLLOWER_PORT="/dev/ttyACM1"
@@ -19,7 +20,8 @@ camera_config = {
         index_or_path=WRIST_PATH,
         width=CAMERA_WIDTH,
         height=CAMERA_HEIGHT,
-        fps=CAMERA_FPS
+        fps=CAMERA_FPS,
+        rotation=Cv2Rotation.ROTATE_90
     ),
     "overhead": OpenCVCameraConfig(
         index_or_path=OVERHEAD_PATH,

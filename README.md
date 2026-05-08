@@ -85,8 +85,9 @@ uv run lerobot-teleoperate \
     --teleop.port=${LEADER_PORT} \
     --teleop.id=Leader_01_Purple \
     --display_data=true \
+    --display_compressed_image=true \
     --robot.cameras="{ \
-        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
+        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 30, rotation: -90}, \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}"
 ```
 
@@ -108,12 +109,14 @@ uv run lerobot-record \
     --teleop.type=so101_leader \
     --teleop.port=${LEADER_PORT} \
     --teleop.id=Leader_01_Purple \
+    --display_data=true \
+    --display_compressed_image=true \
     --robot.cameras="{ \
-        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
+        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 30, rotation: -90}, \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
-    --dataset.num_episodes=80 \
-    --dataset.repo_id=${HF_USER}/grab_blue_highlighter_2pos4or10ep \
-    --dataset.single_task="Grab the blue highlighter" \
+    --dataset.num_episodes=60 \
+    --dataset.repo_id=${HF_USER}/pick_blue_cube \
+    --dataset.single_task="Pick the blue cube" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=1 
 ```
@@ -164,7 +167,7 @@ uv run lerobot-record  \
     --robot.type=so101_follower \
     --robot.port=${FOLLOWER_PORT} \
     --robot.cameras="{ \
-        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
+        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 30, rotation: -90}, \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
     --robot.id=Follower_01_DarkGreen \
     --display_data=false \
@@ -196,11 +199,11 @@ uv run -m lerobot.async_inference.robot_client \
     --robot.port=${FOLLOWER_PORT} \
     --robot.id=Follower_01_DarkGreen \
     --robot.cameras="{ \
-        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 640, height: 480, fps: 30}, \
+        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 30, rotation: -90}, \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
-    --task="Grab the blue highlighter" \
+    --task="Grab the bowl" \
     --policy_type=act \
-    --pretrained_name_or_path=${HF_USER}/act_blue_highlighter_100000_policy \
+    --pretrained_name_or_path=${HF_USER}/act_red_candy_100000_policy \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.5
     # --policy_device=cuda \
