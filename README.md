@@ -46,9 +46,9 @@ Cela permet de voir quel caméra (wrist ou overhead) est connecté à quel chemi
 On peut alors définir ces cinq variables qui seront utilisées dans les commandes qui suivent :
 
 ```
-LEADER_PORT="/dev/ttyACM0"
-FOLLOWER_PORT="/dev/ttyACM1"
-WRIST_PATH="/dev/video4"
+LEADER_PORT="/dev/ttyACM1"
+FOLLOWER_PORT="/dev/ttyACM0"
+WRIST_PATH="/dev/video0"
 OVERHEAD_PATH="/dev/video2"
 HF_USER="nirs123"
 ```
@@ -167,15 +167,15 @@ uv run lerobot-record  \
     --robot.type=so101_follower \
     --robot.port=${FOLLOWER_PORT} \
     --robot.cameras="{ \
-        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 30, rotation: -90}, \
-        overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
+        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 15, rotation: -90}, \
+        overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 15}}" \
     --robot.id=Follower_01_DarkGreen \
     --display_data=false \
     --dataset.repo_id=${HF_USER}/eval_act_blue_highlighter \
     --dataset.single_task="Grab the blue highlighter" \
     --dataset.streaming_encoding=true \
     --dataset.encoder_threads=1 \
-    --policy.path=${HF_USER}/act_blue_highlighter_50000_policy
+    --policy.path=${HF_USER}/smolvla_pick_blue_cube_100000_policy
     # <- Teleop optional if you want to teleoperate in between episodes \
     # --teleop.type=so101_leader \
     # --teleop.port=${LEADER_PORT} \
@@ -201,10 +201,34 @@ uv run -m lerobot.async_inference.robot_client \
     --robot.cameras="{ \
         wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 30, rotation: -90}, \
         overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 30}}" \
-    --task="Grab the bowl" \
+    --task="Pick the blue cube" \
     --policy_type=act \
-    --pretrained_name_or_path=${HF_USER}/act_red_candy_100000_policy \
+    --pretrained_name_or_path=${HF_USER}/act_pick_blue_cube_37500_policy \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.5
-    # --policy_device=cuda \
 ``` 
+
+## HIL
+
+```
+uv run lerobot-rollout \
+    --strategy.type=dagger \
+    --robot.type=so101_follower \
+    --robot.port=${FOLLOWER_PORT} \
+    --robot.id=Follower_01_DarkGreen \
+    --robot.cameras="{ \
+        wrist: {type: opencv, index_or_path: ${WRIST_PATH}, width: 480, height: 640, fps: 15, rotation: -90}, \
+        overhead: {type: opencv, index_or_path: ${OVERHEAD_PATH}, width: 640, height: 480, fps: 15}}" \
+    --teleop.type=so101_leader \
+    --teleop.port=${LEADER_PORT} \
+    --policy.type=act \
+    --policy.path=${HF_USER}/act_pick_blue_cube_15000_policy \
+    --repo_id=${HF_USER}/hil_pick_blue_cube \
+    --single_task="Pick the blue cube" \
+    --fps=15 \
+    --episode_time_s=30 \
+    --num_episodes=10
+```
+
+a clear:
+9, 17, 18, 27, 28, 48, 49, 58, 59

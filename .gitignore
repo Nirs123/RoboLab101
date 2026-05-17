@@ -216,6 +216,6 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-outputs/*
+outputs/captured_images/*
 
 logs/*
