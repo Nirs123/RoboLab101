@@ -26,7 +26,7 @@ CONFIG_GLOBAL_TITLES: dict[Config, str] = {
 
 HEATMAP_VMIN = 0.0
 HEATMAP_VMAX = 1.0
-HEATMAP_CMAP_NAME = "viridis"
+HEATMAP_CMAP_NAME = "turbo"  # better separation than viridis in 0.7–0.9
 FIGURE_DPI = 150
 COLORBAR_TICKS = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 CMAP = plt.get_cmap(HEATMAP_CMAP_NAME).resampled(256)
@@ -86,12 +86,12 @@ data = {
 
 viz_positions = {
     "in_distribution": {
-        "normal": [(4.5, 0.5), (2.5, 1.5), (2.5, 2.5), (4.5, 2.5), (6.5, 2.5), (6.5, 1.5)],
-        "oriented": [(4.5, 1), (2, 1), (2, 3), (4.5, 3), (6.5, 3), (6.5, 1)],
+        "normal": [(4.5, 3.5), (2.5, 2.5), (2.5, 1.5), (4.5, 1.5), (6.5, 1.5), (6.5, 2.5)],
+        "oriented": [(4.5, 3), (2, 3), (2, 1), (4.5, 1), (7, 1), (7, 3)],
     },
     "out_of_distribution": {
         "normal": [(3, 1), (3, 3), (6, 3), (6, 1)],
-        "oriented": [(3, 1), (3, 3), (6, 3), (6, 1)],
+        "oriented": [(3, 3), (3, 1), (6, 1), (6, 3)],
     },
 }
 

@@ -232,3 +232,13 @@ uv run lerobot-rollout \
 
 a clear:
 9, 17, 18, 27, 28, 48, 49, 58, 59
+
+
+```
+uv run lerobot-edit-dataset \
+    --repo_id ${HF_USER}/pick_blue_cube_2 \
+    --new_repo_id ${HF_USER}/pick_blue_cube_clean \
+    --operation.type delete_episodes \
+    --operation.episode_indices "[9, 17, 18, 27, 28, 48, 49, 58, 59]" \
+    --push_to_hub true
+```
